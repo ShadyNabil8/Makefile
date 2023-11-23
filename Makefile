@@ -1,5 +1,5 @@
 ########################################################################
-####################### Makefile Template ##############################
+############################### Makefile ###############################
 ########################################################################
 
 # Compiler settings - Can be customized.
@@ -9,77 +9,43 @@ LDFLAGS =
 
 # Makefile settings - Can be customized.
 APPNAME = myapp
-EXT = .c
+EXT = .o
 SRCDIR = .
 OBJDIR = .
 
 ############## Do not change anything from here downwards! #############
 SRC = $(wildcard $(SRCDIR)/*$(EXT))
-OBJ = $(SRC:$(SRCDIR)/%$(EXT)=$(OBJDIR)/%.o)
-DEP = $(OBJ:$(OBJDIR)/%.o=%.d)
+# 
+OBJ = *.o
+DEP = *.d
 # UNIX-based OS variables & settings
 RM = rm
 DELOBJ = $(OBJ)
-# Windows OS variables & settings
-DEL = del
-EXE = .exe
-WDELOBJ = $(SRC:$(SRCDIR)/%$(EXT)=$(OBJDIR)\\%.o)
 
 ########################################################################
 ####################### Targets beginning here #########################
 ########################################################################
+include Makeconfig
+vfiles = $(files:.c=.o)
+################### Build rules for Unix-based OS ###################
+libinit:
+	@$(MAKE) -C $(LIB_SRC) $@
 
-all: $(APPNAME)
+libclean: 
+	@$(MAKE) -C $(LIB_SRC) $@
 
-# Builds the app
-$(APPNAME): $(OBJ)
-	$(CC) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
-
-# Creates the dependecy rules
-%.d: $(SRCDIR)/%$(EXT)
-	@$(CPP) $(CFLAGS) $< -MM -MT $(@:%.d=$(OBJDIR)/%.o) >$@
-
-# Includes all .h files
--include $(DEP)
-
-# Building rule for .o files and its .c/.cpp in combination with all .h
-$(OBJDIR)/%.o: $(SRCDIR)/%$(EXT)
-	$(CC) $(CXXFLAGS) -o $@ -c $<
-
+build: clean libinit $(vfiles)
+	$(CC) $(vfiles) -$(libname) -L $(LIB_SRC) -o $(APPNAME)
 ################### Cleaning rules for Unix-based OS ###################
 # Cleans complete project
 .PHONY: clean
-clean:
-	$(RM) $(DELOBJ) $(DEP) $(APPNAME)
+clean: libclean
+ifneq ("$(wildcard $(DELOBJ))","")
+	$(RM) $(DELOBJ)
+endif
+ifneq ("$(wildcard $(APPNAME))","")
+	$(RM) $(APPNAME)
+endif
 
-# Cleans only all files with the extension .d
-.PHONY: cleandep
-cleandep:
-	$(RM) $(DEP)
 
-#################### Cleaning rules for Windows OS #####################
-# Cleans complete project
-.PHONY: cleanw
-cleanw:
-	$(DEL) $(WDELOBJ) $(DEP) $(APPNAME)$(EXE)
 
-# Cleans only all files with the extension .d
-.PHONY: cleandepw
-cleandepw:
-	$(DEL) $(DEP)
-
-############################## My Targets ###############################
-
-########################### Automatic variables #########################
-	@echo "This is helper1"
-helper2:
-	@echo "This is helper2"
-
-mytarget1: helper1 helper2
-	@echo "Traget name is $@"
-	@echo "First prerequisute is $<"
-	@echo "All prerequisutes are $^"
-
-########################### Built in rules #########################
-
-mytarget2: 

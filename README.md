@@ -83,3 +83,15 @@ mytarget1: helper1 helper2
 ```
 
 ## built-in Rules
+Even if we donot have the main.o/file1.o object files, the built in rules will take the .c file and generate the .o files.
+```
+mybuild: main.o file1.o
+	$(CC) $^ -o $(APPNAME)
+```
+After running this target we get,
+```
+gcc -std=c11 -Wall -o main.o -c main.c
+gcc -std=c11 -Wall -o file1.o -c file1.c
+gcc main.o file1.o -o myapp
+```
+

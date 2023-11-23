@@ -1,0 +1,3 @@
+files = motor.c
+libname = libmotor.a
+libheaderfile = motor.h

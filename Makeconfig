@@ -1,0 +1,3 @@
+files = main.c file1.c
+LIB_SRC = ./lib
+libname = lmotor
